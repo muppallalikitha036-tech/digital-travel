@@ -1,0 +1,6 @@
+{
+  "name": "TRAVEL REIMAGINED",
+  "description": "Innovative Digital Travel Experiences — An immersive platform for discovering cinematic destinations, curated expeditions, AI travel planning, and custom journeys.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
