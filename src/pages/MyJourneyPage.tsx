@@ -28,6 +28,9 @@ export const MyJourneyPage: React.FC = () => {
     navigate,
     addToast,
     triggerRegionalSound,
+    currentUser,
+    loginWithGoogle,
+    logout,
   } = useJourney();
 
   const [activeTab, setActiveTab] = useState<'trips' | 'destinations' | 'experiences'>('trips');
@@ -45,7 +48,7 @@ export const MyJourneyPage: React.FC = () => {
     <div className="relative min-h-screen bg-transparent pt-28 pb-24 text-slate-100">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header & Share Trigger */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6 border-b border-white/10 pb-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6 border-b border-white/10 pb-8">
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-amber-400 font-display">
               <Compass className="w-4 h-4" />
@@ -77,6 +80,80 @@ export const MyJourneyPage: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* Multi-User Google Account Status & Private Data Isolation Banner */}
+        {currentUser ? (
+          <div className="mb-8 p-4 sm:p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl backdrop-blur-xl">
+            <div className="flex items-center gap-3">
+              {currentUser.photoURL ? (
+                <img
+                  src={currentUser.photoURL}
+                  alt="Avatar"
+                  className="w-11 h-11 rounded-full ring-2 ring-emerald-400/50 object-cover"
+                />
+              ) : (
+                <div className="w-11 h-11 rounded-full bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center text-sm">
+                  {(currentUser.displayName || currentUser.email || 'U')[0].toUpperCase()}
+                </div>
+              )}
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-bold text-white font-display">
+                    {currentUser.displayName || 'Google Account'}
+                  </span>
+                  <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    Private & Isolated Storage
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  Connected as <span className="text-amber-300 font-mono">{currentUser.email}</span>. Only this account has access to these itineraries and bookmarks.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={logout}
+              className="text-xs text-slate-300 hover:text-rose-300 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-rose-500/20 border border-white/10 transition-colors shrink-0 self-start sm:self-auto"
+            >
+              Sign Out of Account
+            </button>
+          </div>
+        ) : (
+          <div className="mb-8 p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl backdrop-blur-xl">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                <span className="text-sm font-bold text-white font-display">Link Your Google / Gmail Account</span>
+              </div>
+              <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                Sign in with Google to save your custom itineraries and choices permanently across all devices. Each user account has isolated, private cloud storage.
+              </p>
+            </div>
+            <button
+              onClick={loginWithGoogle}
+              className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-amber-500/20 flex items-center gap-2 shrink-0 self-start sm:self-auto active:scale-95 transition-all"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path
+                  fill="#EA4335"
+                  d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"
+                />
+                <path
+                  fill="#4285F4"
+                  d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"
+                />
+              </svg>
+              <span>Sign in with Google</span>
+            </button>
+          </div>
+        )}
 
         {/* Dashboard Tabs Bar */}
         <div className="flex items-center gap-2 border-b border-white/10 pb-4 mb-8 overflow-x-auto no-scrollbar">

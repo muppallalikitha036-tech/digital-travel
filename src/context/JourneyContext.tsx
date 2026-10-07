@@ -1,6 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { DESTINATIONS, EXPERIENCES, Destination, Experience } from '../data/travelData';
 import { play6SecRegionalSound, stopCurrentRegionalSound, RegionalSoundInfo } from '../utils/regionalAudio';
+import {
+  auth,
+  googleProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+  db,
+  doc,
+  setDoc,
+  deleteDoc,
+  collection,
+  onSnapshot,
+  User,
+} from '../firebase/config';
 
 export interface PlannedTrip {
   id: string;
@@ -22,6 +36,12 @@ interface ToastMessage {
 }
 
 interface JourneyContextType {
+  // User Authentication & Isolated Multi-User Profiles
+  currentUser: User | null;
+  isAuthLoading: boolean;
+  loginWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
+
   // Navigation / Route
   currentPath: string;
   navigate: (path: string) => void;
@@ -133,31 +153,18 @@ export const JourneyProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Initialize route from window.location (hash, query redirect, or pathname)
   const [currentPath, setCurrentPath] = useState<string>(() => resolveRouteFromWindow());
 
-  // Handle browser back/forward buttons & hash navigation across static hosting environments
-  useEffect(() => {
-    const handleRouteChange = () => {
-      setCurrentPath(resolveRouteFromWindow());
-    };
-    window.addEventListener('popstate', handleRouteChange);
-    window.addEventListener('hashchange', handleRouteChange);
-    return () => {
-      window.removeEventListener('popstate', handleRouteChange);
-      window.removeEventListener('hashchange', handleRouteChange);
-    };
-  }, []);
+  // User Authentication State
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
 
-  const navigate = (path: string) => {
-    const targetPath = path.startsWith('/') ? path : `/${path}`;
-    if (targetPath !== currentPath) {
-      setCurrentPath(targetPath);
-      // Synchronize hash for reliable static hosting & GitHub Pages reload without server rewrites
-      try {
-        window.location.hash = targetPath;
-      } catch {
-        // fallback
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+  // Toasts
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const addToast = (text: string, type: 'success' | 'info' = 'success') => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, text, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3200);
   };
 
   // Saved Destinations
@@ -185,8 +192,7 @@ export const JourneyProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const stored = localStorage.getItem('tr_planned_trips');
       if (stored) return JSON.parse(stored);
-      // Pre-seed an inspirational default planned trip
-      const icelandDest = DESTINATIONS.find(d => d.id === 'iceland')!;
+      const icelandDest = DESTINATIONS.find((d) => d.id === 'iceland')!;
       return [
         {
           id: 'trip-iceland-initial',
@@ -197,7 +203,7 @@ export const JourneyProvider: React.FC<{ children: React.ReactNode }> = ({ child
           travelStyle: 'Premium',
           journeyType: 'Adventure',
           createdAt: new Date().toISOString(),
-          days: icelandDest.suggestedItinerary.map(item => ({
+          days: icelandDest.suggestedItinerary.map((item) => ({
             day: item.day,
             title: item.title,
             desc: item.desc,
@@ -211,65 +217,254 @@ export const JourneyProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   });
 
-  // Save to localStorage
+  // Listen to Firebase Auth state
   useEffect(() => {
-    try {
-      localStorage.setItem('tr_saved_destinations', JSON.stringify(savedDestinationIds));
-    } catch (e) {
-      console.warn(e);
-    }
-  }, [savedDestinationIds]);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setCurrentUser(user);
+      setIsAuthLoading(false);
 
+      if (user) {
+        // Create or update user profile document in /users/{user.uid}
+        try {
+          await setDoc(
+            doc(db, 'users', user.uid),
+            {
+              id: user.uid,
+              email: user.email || '',
+              displayName: user.displayName || '',
+              photoURL: user.photoURL || '',
+              updatedAt: new Date().toISOString(),
+            },
+            { merge: true }
+          );
+        } catch (err) {
+          console.warn('Could not sync user profile to Firestore:', err);
+        }
+      } else {
+        // When signed out, isolate session: load guest localStorage
+        try {
+          const storedDests = localStorage.getItem('tr_saved_destinations');
+          setSavedDestinationIds(storedDests ? JSON.parse(storedDests) : ['iceland', 'kyoto']);
+          const storedExps = localStorage.getItem('tr_saved_experiences');
+          setSavedExperienceIds(storedExps ? JSON.parse(storedExps) : ['chase-the-northern-lights']);
+          const storedTrips = localStorage.getItem('tr_planned_trips');
+          setPlannedTrips(storedTrips ? JSON.parse(storedTrips) : []);
+        } catch {
+          // fallback
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Real-time synchronization of private saved bookmarks for authenticated user
   useEffect(() => {
-    try {
-      localStorage.setItem('tr_saved_experiences', JSON.stringify(savedExperienceIds));
-    } catch (e) {
-      console.warn(e);
-    }
-  }, [savedExperienceIds]);
+    if (!currentUser) return;
 
+    const savedColRef = collection(db, 'users', currentUser.uid, 'savedItems');
+    const unsubscribe = onSnapshot(
+      savedColRef,
+      (snapshot) => {
+        const destIds: string[] = [];
+        const expIds: string[] = [];
+
+        snapshot.docs.forEach((d) => {
+          const data = d.data();
+          if (data.type === 'destination') {
+            destIds.push(data.targetId);
+          } else if (data.type === 'experience') {
+            expIds.push(data.targetId);
+          }
+        });
+
+        setSavedDestinationIds(destIds);
+        setSavedExperienceIds(expIds);
+      },
+      (err) => {
+        console.warn('Firestore snapshot error for saved items:', err);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [currentUser]);
+
+  // Real-time synchronization of private planned trips for authenticated user
   useEffect(() => {
-    try {
-      localStorage.setItem('tr_planned_trips', JSON.stringify(plannedTrips));
-    } catch (e) {
-      console.warn(e);
-    }
-  }, [plannedTrips]);
+    if (!currentUser) return;
 
-  // Toasts
-  const [toasts, setToasts] = useState<ToastMessage[]>([]);
-  const addToast = (text: string, type: 'success' | 'info' = 'success') => {
-    const id = Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, text, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 3200);
+    const tripsColRef = collection(db, 'users', currentUser.uid, 'plannedTrips');
+    const unsubscribe = onSnapshot(
+      tripsColRef,
+      (snapshot) => {
+        const trips: PlannedTrip[] = [];
+        snapshot.docs.forEach((d) => {
+          trips.push(d.data() as PlannedTrip);
+        });
+        trips.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setPlannedTrips(trips);
+      },
+      (err) => {
+        console.warn('Firestore snapshot error for planned trips:', err);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [currentUser]);
+
+  // Handle browser back/forward buttons & hash navigation across static hosting environments
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setCurrentPath(resolveRouteFromWindow());
+    };
+    window.addEventListener('popstate', handleRouteChange);
+    window.addEventListener('hashchange', handleRouteChange);
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+      window.removeEventListener('hashchange', handleRouteChange);
+    };
+  }, []);
+
+  const navigate = (path: string) => {
+    const targetPath = path.startsWith('/') ? path : `/${path}`;
+    if (targetPath !== currentPath) {
+      setCurrentPath(targetPath);
+      try {
+        window.location.hash = targetPath;
+      } catch {
+        // fallback
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
-  const toggleSaveDestination = (id: string) => {
+  // Google Login & Logout handlers
+  const loginWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      addToast(`Signed in as ${result.user.displayName || result.user.email}!`, 'success');
+    } catch (err: any) {
+      if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
+        console.error('Google Sign-In error:', err);
+        addToast('Sign-in cancelled or interrupted.', 'info');
+      }
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      addToast('Signed out successfully. Your journey data remains strictly private.', 'info');
+    } catch (err) {
+      console.error('Sign-out error:', err);
+    }
+  };
+
+  // Save to guest localStorage when not logged in
+  useEffect(() => {
+    if (!currentUser) {
+      try {
+        localStorage.setItem('tr_saved_destinations', JSON.stringify(savedDestinationIds));
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+  }, [savedDestinationIds, currentUser]);
+
+  useEffect(() => {
+    if (!currentUser) {
+      try {
+        localStorage.setItem('tr_saved_experiences', JSON.stringify(savedExperienceIds));
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+  }, [savedExperienceIds, currentUser]);
+
+  useEffect(() => {
+    if (!currentUser) {
+      try {
+        localStorage.setItem('tr_planned_trips', JSON.stringify(plannedTrips));
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+  }, [plannedTrips, currentUser]);
+
+  const toggleSaveDestination = async (id: string) => {
     const dest = DESTINATIONS.find((d) => d.id === id);
-    setSavedDestinationIds((prev) => {
-      if (prev.includes(id)) {
-        addToast(`Removed ${dest?.name || 'Destination'} from My Journey`, 'info');
-        return prev.filter((item) => item !== id);
-      } else {
-        addToast(`Added ${dest?.name || 'Destination'} to My Journey!`, 'success');
-        return [...prev, id];
+    const isCurrentlySaved = savedDestinationIds.includes(id);
+
+    if (currentUser) {
+      try {
+        const itemDocRef = doc(db, 'users', currentUser.uid, 'savedItems', `dest-${id}`);
+        if (isCurrentlySaved) {
+          await deleteDoc(itemDocRef);
+          addToast(`Removed ${dest?.name || 'Destination'} from your account`, 'info');
+        } else {
+          await setDoc(itemDocRef, {
+            id: `dest-${id}`,
+            userId: currentUser.uid,
+            targetId: id,
+            type: 'destination',
+            title: dest?.name || 'Destination',
+            savedAt: new Date().toISOString(),
+          });
+          addToast(`Saved ${dest?.name || 'Destination'} to your Google account!`, 'success');
+        }
+      } catch (err) {
+        console.error('Error toggling destination in Firestore:', err);
       }
-    });
+    } else {
+      // Guest mode
+      setSavedDestinationIds((prev) => {
+        if (prev.includes(id)) {
+          addToast(`Removed ${dest?.name || 'Destination'} from My Journey`, 'info');
+          return prev.filter((item) => item !== id);
+        } else {
+          addToast(`Added ${dest?.name || 'Destination'} to My Journey! (Sign in to sync)`, 'success');
+          return [...prev, id];
+        }
+      });
+    }
   };
 
-  const toggleSaveExperience = (id: string) => {
+  const toggleSaveExperience = async (id: string) => {
     const exp = EXPERIENCES.find((e) => e.id === id);
-    setSavedExperienceIds((prev) => {
-      if (prev.includes(id)) {
-        addToast(`Removed ${exp?.title || 'Experience'} from My Journey`, 'info');
-        return prev.filter((item) => item !== id);
-      } else {
-        addToast(`Added "${exp?.title || 'Experience'}" to My Journey!`, 'success');
-        return [...prev, id];
+    const isCurrentlySaved = savedExperienceIds.includes(id);
+
+    if (currentUser) {
+      try {
+        const itemDocRef = doc(db, 'users', currentUser.uid, 'savedItems', `exp-${id}`);
+        if (isCurrentlySaved) {
+          await deleteDoc(itemDocRef);
+          addToast(`Removed ${exp?.title || 'Experience'} from your account`, 'info');
+        } else {
+          await setDoc(itemDocRef, {
+            id: `exp-${id}`,
+            userId: currentUser.uid,
+            targetId: id,
+            type: 'experience',
+            title: exp?.title || 'Experience',
+            savedAt: new Date().toISOString(),
+          });
+          addToast(`Saved "${exp?.title || 'Experience'}" to your Google account!`, 'success');
+        }
+      } catch (err) {
+        console.error('Error toggling experience in Firestore:', err);
       }
-    });
+    } else {
+      // Guest mode
+      setSavedExperienceIds((prev) => {
+        if (prev.includes(id)) {
+          addToast(`Removed ${exp?.title || 'Experience'} from My Journey`, 'info');
+          return prev.filter((item) => item !== id);
+        } else {
+          addToast(`Added "${exp?.title || 'Experience'}" to My Journey! (Sign in to sync)`, 'success');
+          return [...prev, id];
+        }
+      });
+    }
   };
 
   const isDestinationSaved = (id: string) => savedDestinationIds.includes(id);
@@ -285,30 +480,66 @@ export const JourneyProvider: React.FC<{ children: React.ReactNode }> = ({ child
       id: newId,
       createdAt: new Date().toISOString(),
     };
-    setPlannedTrips((prev) => [newTrip, ...prev]);
-    addToast(`Saved itinerary: ${newTrip.title}!`, 'success');
+
+    if (currentUser) {
+      try {
+        setDoc(doc(db, 'users', currentUser.uid, 'plannedTrips', newId), {
+          ...newTrip,
+          userId: currentUser.uid,
+        });
+        addToast(`Saved itinerary "${newTrip.title}" to your Google account!`, 'success');
+      } catch (err) {
+        console.error('Error saving trip to Firestore:', err);
+      }
+    } else {
+      setPlannedTrips((prev) => [newTrip, ...prev]);
+      addToast(`Saved itinerary: ${newTrip.title}! (Sign in to sync)`, 'success');
+    }
     return newId;
   };
 
-  const removePlannedTrip = (id: string) => {
-    setPlannedTrips((prev) => prev.filter((t) => t.id !== id));
-    addToast('Removed itinerary from My Journey', 'info');
+  const removePlannedTrip = async (id: string) => {
+    if (currentUser) {
+      try {
+        await deleteDoc(doc(db, 'users', currentUser.uid, 'plannedTrips', id));
+        addToast('Removed itinerary from your Google account', 'info');
+      } catch (err) {
+        console.error('Error deleting trip from Firestore:', err);
+      }
+    } else {
+      setPlannedTrips((prev) => prev.filter((t) => t.id !== id));
+      addToast('Removed itinerary from My Journey', 'info');
+    }
   };
 
-  const toggleTripDayComplete = (tripId: string, dayIndex: number) => {
-    setPlannedTrips((prev) =>
-      prev.map((t) => {
-        if (t.id !== tripId) return t;
-        const newDays = [...t.days];
-        if (newDays[dayIndex]) {
-          newDays[dayIndex] = {
-            ...newDays[dayIndex],
-            completed: !newDays[dayIndex].completed,
-          };
+  const toggleTripDayComplete = async (tripId: string, dayIndex: number) => {
+    const updatedTrips = plannedTrips.map((t) => {
+      if (t.id !== tripId) return t;
+      const newDays = [...t.days];
+      if (newDays[dayIndex]) {
+        newDays[dayIndex] = {
+          ...newDays[dayIndex],
+          completed: !newDays[dayIndex].completed,
+        };
+      }
+      return { ...t, days: newDays };
+    });
+
+    setPlannedTrips(updatedTrips);
+
+    if (currentUser) {
+      const trip = updatedTrips.find((t) => t.id === tripId);
+      if (trip) {
+        try {
+          await setDoc(doc(db, 'users', currentUser.uid, 'plannedTrips', tripId), {
+            ...trip,
+            userId: currentUser.uid,
+          }, { merge: true });
+        } catch (err) {
+          console.error('Error updating trip day in Firestore:', err);
         }
-        return { ...t, days: newDays };
-      })
-    );
+      }
+    }
   };
 
   // Search Modal
@@ -404,6 +635,10 @@ export const JourneyProvider: React.FC<{ children: React.ReactNode }> = ({ child
   return (
     <JourneyContext.Provider
       value={{
+        currentUser,
+        isAuthLoading,
+        loginWithGoogle,
+        logout,
         currentPath,
         navigate,
         savedDestinationIds,

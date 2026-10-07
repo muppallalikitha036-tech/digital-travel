@@ -1,6 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useJourney } from '../context/JourneyContext';
-import { Compass, Search, Heart, Sparkles, Menu, X, ArrowUpRight, Clapperboard } from 'lucide-react';
+import {
+  Compass,
+  Search,
+  Heart,
+  Sparkles,
+  Menu,
+  X,
+  ArrowUpRight,
+  Clapperboard,
+  User as UserIcon,
+  LogOut,
+  ShieldCheck,
+} from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const {
@@ -11,10 +23,16 @@ export const Navbar: React.FC = () => {
     openSearch,
     openChat,
     openAnimateModal,
+    currentUser,
+    isAuthLoading,
+    loginWithGoogle,
+    logout,
   } = useJourney();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
   const totalSavedCount = savedDestinationIds.length + savedExperienceIds.length;
 
@@ -24,6 +42,17 @@ export const Navbar: React.FC = () => {
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close account menu on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(e.target as Node)) {
+        setAccountMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const navLinks = [
@@ -157,6 +186,118 @@ export const Navbar: React.FC = () => {
               <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
 
+            {/* Google Account Authentication & Multi-User Profile */}
+            <div className="relative" ref={accountMenuRef}>
+              {currentUser ? (
+                <button
+                  onClick={() => setAccountMenuOpen(!accountMenuOpen)}
+                  className="flex items-center gap-2 p-1 pl-2.5 pr-1 bg-black/60 hover:bg-black/80 border border-white/20 hover:border-amber-400/50 rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 group shadow-md"
+                  aria-label="Account Settings"
+                >
+                  <span className="hidden xl:inline text-xs font-semibold text-slate-200 group-hover:text-amber-300 max-w-[120px] truncate">
+                    {currentUser.displayName || currentUser.email?.split('@')[0]}
+                  </span>
+                  {currentUser.photoURL ? (
+                    <img
+                      src={currentUser.photoURL}
+                      alt={currentUser.displayName || 'User'}
+                      className="w-7 h-7 rounded-full object-cover ring-1 ring-amber-400/40"
+                    />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold text-xs flex items-center justify-center">
+                      {(currentUser.displayName || currentUser.email || 'U')[0].toUpperCase()}
+                    </div>
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={loginWithGoogle}
+                  disabled={isAuthLoading}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-amber-400/50 rounded-full text-xs font-semibold text-white transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 whitespace-nowrap active:scale-95"
+                  title="Link your Gmail / Google account"
+                >
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+                    <path
+                      fill="#EA4335"
+                      d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"
+                    />
+                    <path
+                      fill="#4285F4"
+                      d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"
+                    />
+                  </svg>
+                  <span className="hidden sm:inline">Google Sign In</span>
+                  <span className="sm:hidden">Sign In</span>
+                </button>
+              )}
+
+              {/* Account Dropdown Modal */}
+              {currentUser && accountMenuOpen && (
+                <div className="absolute right-0 mt-2 w-72 sm:w-80 rounded-2xl bg-[#0C1322] border border-amber-400/30 p-4 shadow-2xl backdrop-blur-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="flex items-center gap-3 pb-3 border-b border-white/10">
+                    {currentUser.photoURL ? (
+                      <img
+                        src={currentUser.photoURL}
+                        alt="Profile"
+                        className="w-10 h-10 rounded-full object-cover ring-2 ring-amber-400/50"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold flex items-center justify-center text-sm">
+                        {(currentUser.displayName || currentUser.email || 'U')[0].toUpperCase()}
+                      </div>
+                    )}
+                    <div className="overflow-hidden">
+                      <div className="text-sm font-display font-bold text-white truncate">
+                        {currentUser.displayName || 'Google Traveler'}
+                      </div>
+                      <div className="text-xs text-amber-300/90 font-mono truncate">
+                        {currentUser.email}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="py-3 space-y-2 text-xs text-slate-300">
+                    <div className="flex items-start gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200">
+                      <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                      <p className="text-[11px] leading-relaxed">
+                        <strong>Private Account Sync</strong>: Your saved destinations and itineraries are isolated strictly to this Google account. Other users cannot see your data.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                    <button
+                      onClick={() => {
+                        setAccountMenuOpen(false);
+                        handleNavClick('/journey');
+                      }}
+                      className="text-xs text-amber-400 hover:text-amber-300 font-semibold hover:underline"
+                    >
+                      View My Trips ({totalSavedCount})
+                    </button>
+                    <button
+                      onClick={() => {
+                        setAccountMenuOpen(false);
+                        logout();
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-rose-500/20 hover:text-rose-300 text-xs text-slate-300 transition-colors"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Mobile Hamburger Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -172,6 +313,72 @@ export const Navbar: React.FC = () => {
       {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-30 lg:hidden bg-[#070B12]/95 backdrop-blur-2xl flex flex-col pt-24 px-6 pb-8 animate-in fade-in duration-200">
+          {/* Mobile User Profile Section */}
+          <div className="mb-6 p-3 rounded-2xl bg-white/5 border border-white/10">
+            {currentUser ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5 overflow-hidden">
+                  {currentUser.photoURL ? (
+                    <img
+                      src={currentUser.photoURL}
+                      alt="Profile"
+                      className="w-9 h-9 rounded-full object-cover ring-1 ring-amber-400/40"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold text-xs flex items-center justify-center">
+                      {(currentUser.displayName || currentUser.email || 'U')[0].toUpperCase()}
+                    </div>
+                  )}
+                  <div className="overflow-hidden">
+                    <div className="text-xs font-bold text-white truncate">
+                      {currentUser.displayName || 'Google User'}
+                    </div>
+                    <div className="text-[10px] text-amber-300/80 font-mono truncate">
+                      {currentUser.email}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    logout();
+                  }}
+                  className="p-1.5 rounded-lg bg-white/10 text-slate-300 hover:text-rose-400"
+                  title="Sign Out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  loginWithGoogle();
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl text-xs font-semibold text-white"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+                  <path
+                    fill="#EA4335"
+                    d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"
+                  />
+                  <path
+                    fill="#4285F4"
+                    d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"
+                  />
+                </svg>
+                <span>Sign in with Google</span>
+              </button>
+            )}
+          </div>
           <div className="flex flex-col space-y-4">
             {navLinks.map((item) => {
               const active = isActive(item.path);

@@ -19,28 +19,31 @@ export const HomePage: React.FC = () => {
         <AutumnBlossomVideoHero />
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-24 pb-16 flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-amber-300 text-xs font-semibold uppercase tracking-widest mb-6 animate-in fade-in slide-in-from-top-4 duration-500 font-display">
-            <Sparkles className="w-3.5 h-3.5" />
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-20 sm:pt-28 pb-12 sm:pb-16 flex flex-col items-center">
+          {/* Top Edition Badge */}
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-black/40 sm:bg-white/10 backdrop-blur-md border border-white/20 sm:border-white/15 text-amber-300 text-[11px] sm:text-xs font-semibold uppercase tracking-widest mb-4 sm:mb-6 animate-in fade-in slide-in-from-top-4 duration-500 font-display">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>Travel Reimagined · 2026 Edition</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-display font-extrabold text-white tracking-tight uppercase max-w-4xl text-balance leading-[1.08] mb-6">
+          {/* Hero Headline - Fluid mobile typography */}
+          <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-extrabold text-white tracking-tight uppercase max-w-4xl text-balance leading-[1.12] sm:leading-[1.08] mb-3 sm:mb-6">
             THE WORLD IS WAITING.{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">
               REIMAGINE HOW YOU EXPLORE IT.
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-2xl text-balance leading-relaxed mb-10 font-normal">
+          {/* Hero Subtitle */}
+          <p className="text-sm xs:text-base sm:text-lg md:text-xl text-slate-200/95 sm:text-slate-300 max-w-2xl text-balance leading-relaxed mb-6 sm:mb-8 font-normal px-2 sm:px-0">
             Discover destinations differently. Experience journeys digitally. Create adventures that feel uniquely yours.
           </p>
 
-          {/* Action CTAs */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+          {/* Action CTAs - Touch optimized for mobile screens */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
             <button
               onClick={() => navigate('/destinations')}
-              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-display font-extrabold text-xs tracking-wider uppercase rounded-full shadow-2xl shadow-amber-500/30 hover:shadow-amber-500/50 hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="w-full sm:w-auto px-7 py-3.5 sm:px-8 sm:py-4 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-display font-extrabold text-xs sm:text-sm tracking-wider uppercase rounded-2xl sm:rounded-full shadow-2xl shadow-amber-500/30 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               <span>EXPLORE THE WORLD</span>
               <ArrowRight className="w-4 h-4" />
@@ -48,15 +51,60 @@ export const HomePage: React.FC = () => {
 
             <button
               onClick={() => navigate('/planner')}
-              className="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-display font-bold text-xs tracking-wider uppercase rounded-full hover:border-amber-400/50 transition-all duration-200 flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+              className="w-full sm:w-auto px-7 py-3.5 sm:px-8 sm:py-4 bg-black/40 hover:bg-white/15 backdrop-blur-xl border border-white/20 text-white font-display font-bold text-xs sm:text-sm tracking-wider uppercase rounded-2xl sm:rounded-full hover:border-amber-400/50 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
             >
               <Compass className="w-4 h-4 text-amber-400" />
               <span>BUILD MY JOURNEY</span>
             </button>
           </div>
 
+          {/* Quick Destination Chips with 6s Audio Preview for Mobile Travelers */}
+          <div className="mt-6 sm:mt-8 w-full max-w-2xl">
+            <p className="text-[11px] uppercase tracking-widest text-amber-300/80 font-mono mb-2.5 font-semibold flex items-center justify-center gap-1.5">
+              <Sparkles className="w-3 h-3 text-amber-400" />
+              <span>Tap to preview regional sound & explore</span>
+            </p>
+            <div className="flex items-center justify-center flex-wrap gap-2 px-1">
+              {[
+                { id: 'kyoto', label: 'Kyoto Sakura', emoji: '🌸', region: 'Asia', country: 'Japan' },
+                { id: 'iceland', label: 'Iceland Aurora', emoji: '❄️', region: 'Europe', country: 'Iceland' },
+                { id: 'swiss-alps', label: 'Swiss Alps', emoji: '🏔️', region: 'Europe', country: 'Switzerland' },
+                { id: 'varanasi', label: 'Sacred Ganges', emoji: '🪔', region: 'Asia', country: 'India' },
+              ].map((chip) => (
+                <button
+                  key={chip.id}
+                  onClick={() => {
+                    triggerRegionalSound(chip.id, chip.country, chip.region);
+                    navigate(`/destinations/${chip.id}`);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 hover:bg-black/75 backdrop-blur-md border border-white/15 hover:border-amber-400/50 text-xs text-slate-200 hover:text-white transition-all active:scale-95 shadow-md shadow-black/30 group"
+                >
+                  <span>{chip.emoji}</span>
+                  <span className="font-medium group-hover:text-amber-300 transition-colors">{chip.label}</span>
+                  <Volume2 className="w-3 h-3 text-amber-400/70 group-hover:text-amber-300 transition-colors" />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Mobile Hero Quick-Stats Bar */}
+          <div className="mt-6 sm:mt-8 grid grid-cols-3 gap-2 sm:gap-6 w-full max-w-lg px-3 py-2.5 sm:py-3.5 rounded-2xl bg-black/45 backdrop-blur-xl border border-white/10 text-center shadow-xl">
+            <div>
+              <div className="text-base sm:text-xl font-display font-bold text-amber-300">12+</div>
+              <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-medium">Sanctuaries</div>
+            </div>
+            <div className="border-x border-white/10">
+              <div className="text-base sm:text-xl font-display font-bold text-amber-300">4K Live</div>
+              <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-medium">Video Canvas</div>
+            </div>
+            <div>
+              <div className="text-base sm:text-xl font-display font-bold text-amber-300">6s Audio</div>
+              <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-medium">Synthesizer</div>
+            </div>
+          </div>
+
           {/* Subtle Animated Scroll Indicator */}
-          <div className="mt-16 flex flex-col items-center gap-2 text-slate-400 text-xs tracking-widest font-mono uppercase animate-bounce">
+          <div className="mt-8 sm:mt-12 flex flex-col items-center gap-1.5 text-slate-400 text-[11px] sm:text-xs tracking-widest font-mono uppercase animate-bounce">
             <span>SCROLL TO EXPLORE ↓</span>
           </div>
         </div>

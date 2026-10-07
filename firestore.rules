@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && isValidId(userId) && request.auth.uid == userId;
+    }
+
+    // Connection testing doc
+    match /test/{docId} {
+      allow read: if true;
+    }
+
+    // Isolated User Profile & Private Resources
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && request.resource.data.id == userId
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 256;
+      allow update: if isOwner(userId)
+        && request.resource.data.id == userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'photoURL', 'updatedAt']);
+      allow delete: if isOwner(userId);
+
+      // Private Saved Bookmarks (Destinations and Experiences)
+      match /savedItems/{itemId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(itemId)
+          && request.resource.data.userId == userId
+          && request.resource.data.targetId is string
+          && request.resource.data.type in ['destination', 'experience']
+          && request.resource.data.savedAt is string;
+        allow update: if isOwner(userId)
+          && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // Private User Planned Trips
+      match /plannedTrips/{tripId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(tripId)
+          && request.resource.data.userId == userId
+          && request.resource.data.destinationId is string
+          && request.resource.data.title is string
+          && request.resource.data.durationDays is number
+          && request.resource.data.createdAt is string;
+        allow update: if isOwner(userId)
+          && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

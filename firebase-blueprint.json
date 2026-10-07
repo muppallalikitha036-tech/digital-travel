@@ -1,0 +1,64 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "User ID matching Auth UID" },
+        "email": { "type": "string", "description": "User email address" },
+        "displayName": { "type": "string", "description": "User display name" },
+        "photoURL": { "type": "string", "description": "User avatar photo URL" },
+        "createdAt": { "type": "string", "description": "ISO timestamp of creation" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of update" }
+      },
+      "required": ["id", "email", "createdAt"]
+    },
+    "SavedItem": {
+      "title": "SavedItem",
+      "description": "User saved destination or experience bookmark",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique saved item ID" },
+        "userId": { "type": "string", "description": "Owner user ID" },
+        "targetId": { "type": "string", "description": "Destination or experience ID" },
+        "type": { "type": "string", "description": "Type of saved item ('destination' or 'experience')" },
+        "title": { "type": "string", "description": "Title of saved item" },
+        "savedAt": { "type": "string", "description": "Timestamp when saved" }
+      },
+      "required": ["id", "userId", "targetId", "type", "savedAt"]
+    },
+    "UserPlannedTrip": {
+      "title": "UserPlannedTrip",
+      "description": "User customized multi-day travel itinerary",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique trip ID" },
+        "userId": { "type": "string", "description": "Owner user ID" },
+        "destinationId": { "type": "string", "description": "Destination ID" },
+        "destinationName": { "type": "string", "description": "Destination name" },
+        "title": { "type": "string", "description": "Trip title" },
+        "durationDays": { "type": "number", "description": "Trip duration in days" },
+        "travelStyle": { "type": "string", "description": "Travel style" },
+        "journeyType": { "type": "string", "description": "Journey type" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" },
+        "notes": { "type": "string", "description": "User personal notes" }
+      },
+      "required": ["id", "userId", "destinationId", "destinationName", "title", "durationDays", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Private user profile collection where users can only read and write their own document"
+    },
+    "/users/{userId}/savedItems/{itemId}": {
+      "schema": "SavedItem",
+      "description": "Private user saved bookmarks collection isolated strictly to the owner"
+    },
+    "/users/{userId}/plannedTrips/{tripId}": {
+      "schema": "UserPlannedTrip",
+      "description": "Private user planned trips collection isolated strictly to the owner"
+    }
+  }
+}

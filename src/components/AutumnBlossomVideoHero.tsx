@@ -124,7 +124,7 @@ export const AutumnBlossomVideoHero: React.FC = () => {
     ];
 
     const leafTypes: ('blossom' | 'maple' | 'ginkgo')[] = ['blossom', 'blossom', 'maple', 'ginkgo'];
-    const leafCount = Math.min(Math.floor(width / 18), 65);
+    const leafCount = width < 640 ? Math.min(Math.floor(width / 24), 36) : Math.min(Math.floor(width / 18), 65);
     const leaves: FallingLeaf[] = [];
 
     const getWindMultipliers = () => {
@@ -248,7 +248,7 @@ export const AutumnBlossomVideoHero: React.FC = () => {
       />
 
       {/* 3. Floating Interactive Video Status & Ambient Controls */}
-      <div className="absolute top-28 sm:top-24 right-4 sm:right-8 z-20 pointer-events-auto flex items-center gap-2">
+      <div className="absolute top-20 sm:top-24 right-3 sm:right-8 z-20 pointer-events-auto flex items-center gap-1.5 sm:gap-2">
         {/* Video Ambience Live Pill */}
         <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-[11px] font-mono text-amber-300 shadow-lg">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
