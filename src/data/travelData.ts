@@ -8,12 +8,18 @@ import varanasiGhats from '../assets/images/varanasi_ganges_ghats_1791214904380.
 import angkorSunrise from '../assets/images/angkor_wat_sunrise_1791214925554.jpg';
 import bhutanTigersNest from '../assets/images/bhutan_tigers_nest_1791214940922.jpg';
 import autumnBg from '../assets/images/autumn_blossom_ambient_bg_1791214878260.jpg';
+import santoriniScenery from '../assets/images/santorini_scenery_site_1791470438047.jpg';
+import cappadociaScenery from '../assets/images/cappadocia_scenery_site_1791470461916.jpg';
+import ladakhScenery from '../assets/images/ladakh_scenery_site_1791470488575.jpg';
+import newZealandScenery from '../assets/images/new_zealand_scenery_1791470518182.jpg';
+import serengetiScenery from '../assets/images/serengeti_scenery_1791470595413.jpg';
+import baliScenery from '../assets/images/bali_scenery_site_1791470635218.jpg';
 
 export interface Destination {
   id: string;
   name: string;
   country: string;
-  region: 'Europe' | 'Asia' | 'Africa' | 'North America' | 'South America' | 'Oceania';
+  region: 'Europe' | 'Asia' | 'Africa' | 'North America' | 'South America' | 'Oceania' | 'Middle East';
   headline: string;
   shortDescription: string;
   overview: string;
@@ -21,6 +27,13 @@ export interface Destination {
   weatherOverview: string;
   climateType: string;
   budgetLevel: 'Budget' | 'Comfortable' | 'Premium' | 'Luxury';
+  priceINR: string;
+  inrDetails?: {
+    flightFromIndia: string;
+    stayPerNight: string;
+    packageTotal: string;
+    bestFor: string;
+  };
   image: string;
   gallery: string[];
   tags: string[];
@@ -89,6 +102,13 @@ export const DESTINATIONS: Destination[] = [
     weatherOverview: 'Subtropical; cool soothing winters, vibrant post-monsoon festivities, warm summer months.',
     climateType: 'Humid Subtropical',
     budgetLevel: 'Comfortable',
+    priceINR: '₹32,000',
+    inrDetails: {
+      flightFromIndia: '₹6,500 – ₹11,000 (DEL/BOM flights/Vande Bharat)',
+      stayPerNight: '₹4,500 – ₹14,000 (Heritage riverfront havelis)',
+      packageTotal: '₹32,000 / person (5-Day complete heritage circuit)',
+      bestFor: 'Spiritual pilgrims, cultural scholars, photographers',
+    },
     image: varanasiGhats,
     gallery: [varanasiGhats, angkorSunrise, bhutanTigersNest],
     tags: ['Pilgrimage', 'Culture', 'Photography', 'Wellness'],
@@ -151,8 +171,15 @@ export const DESTINATIONS: Destination[] = [
     weatherOverview: 'High-altitude cold desert; extreme sunlight clarity, cool mountain air, crisp starry nights.',
     climateType: 'Alpine Cold Desert',
     budgetLevel: 'Premium',
-    image: bhutanTigersNest,
-    gallery: [bhutanTigersNest, swissSummit, patagoniaPeaks],
+    priceINR: '₹48,000',
+    inrDetails: {
+      flightFromIndia: '₹11,000 – ₹17,000 round-trip Leh (IXL)',
+      stayPerNight: '₹5,500 – ₹15,000 (Luxury eco-camp domes & boutique hotels)',
+      packageTotal: '₹48,000 / person (7-Day High Passes & Pangong Tso expedition)',
+      bestFor: 'High-altitude adventurers, photographers, road trippers',
+    },
+    image: ladakhScenery,
+    gallery: [ladakhScenery, swissSummit, patagoniaPeaks],
     tags: ['Pilgrimage', 'Adventure', 'Nature', 'Culture'],
     highlights: [
       { title: 'Thiksey & Hemis Monasteries', desc: 'Spectacular multi-tiered monastery complex resembling Lhasa’s Potala Palace, housing a 49-foot Maitreya Buddha statue.' },
@@ -212,6 +239,13 @@ export const DESTINATIONS: Destination[] = [
     weatherOverview: 'Mountain temperate; crisp fresh alpine air, sunny days and cool evenings.',
     climateType: 'Subtropical Highland',
     budgetLevel: 'Luxury',
+    priceINR: '₹1,10,000',
+    inrDetails: {
+      flightFromIndia: '₹18,000 – ₹26,000 (Druk Air / Bhutan Airlines from CCU/DEL)',
+      stayPerNight: '₹14,000 – ₹32,000 (5★ luxury dzong lodges & heritage suites)',
+      packageTotal: '₹1,10,000 / person (Includes Indian national SDF fee of ₹1,200/day + private guide)',
+      bestFor: 'Couples, spiritual seekers, mindfulness practitioners',
+    },
     image: bhutanTigersNest,
     gallery: [bhutanTigersNest, kyotoTemple, swissSummit],
     tags: ['Pilgrimage', 'Culture', 'Nature', 'Wellness'],
@@ -273,6 +307,13 @@ export const DESTINATIONS: Destination[] = [
     weatherOverview: 'Tropical monsoon; sunny, pleasant breezes in winter, lush emerald foliage in green season.',
     climateType: 'Tropical Wet and Dry',
     budgetLevel: 'Comfortable',
+    priceINR: '₹55,000',
+    inrDetails: {
+      flightFromIndia: '₹18,000 – ₹28,000 (Round-trip to Siem Reap SAI via Bangkok/KUL)',
+      stayPerNight: '₹4,000 – ₹12,000 (Boutique Khmer colonial heritage hotels)',
+      packageTotal: '₹55,000 / person (6-Day temple & floating village pass included)',
+      bestFor: 'History enthusiasts, photographers, cultural explorers',
+    },
     image: angkorSunrise,
     gallery: [angkorSunrise, kyotoTemple, heroLandscape],
     tags: ['Pilgrimage', 'Culture', 'Photography', 'History'],
@@ -334,6 +375,13 @@ export const DESTINATIONS: Destination[] = [
     weatherOverview: 'Mild oceanic sub-polar; rapidly changing conditions. Summer 10°C–16°C, Winter -2°C–3°C.',
     climateType: 'Subpolar Oceanic',
     budgetLevel: 'Premium',
+    priceINR: '₹2,10,000',
+    inrDetails: {
+      flightFromIndia: '₹52,000 – ₹72,000 (DEL/BOM to KEF via Helsinki/London)',
+      stayPerNight: '₹18,000 – ₹36,000 (Geothermal lodge & glass aurora domes)',
+      packageTotal: '₹2,10,000 / person (7-Day 4x4 Ring Road & Ice Cave expedition)',
+      bestFor: 'Aurora hunters, geology buffs, extreme landscape photographers',
+    },
     image: icelandAurora,
     gallery: [icelandAurora, heroLandscape, patagoniaPeaks],
     tags: ['Adventure', 'Nature', 'Photography', 'Road Trips'],
@@ -380,6 +428,13 @@ export const DESTINATIONS: Destination[] = [
     weatherOverview: 'Alpine temperate; crisp mountain air, warm sunny valleys in summer, deep powder in winter.',
     climateType: 'Alpine Continental',
     budgetLevel: 'Luxury',
+    priceINR: '₹2,65,000',
+    inrDetails: {
+      flightFromIndia: '₹48,000 – ₹65,000 (Direct Swiss/Lufthansa to Zurich/Geneva)',
+      stayPerNight: '₹24,000 – ₹55,000 (Luxury Matterhorn chalets & ski lodges)',
+      packageTotal: '₹2,65,000 / person (8-Day First Class Swiss Pass & Glacier Express)',
+      bestFor: 'Luxury honeymooners, alpine hikers, rail journey purists',
+    },
     image: swissSummit,
     gallery: [swissSummit, heroLandscape, kyotoTemple],
     tags: ['Luxury', 'Adventure', 'Nature', 'Wellness'],
@@ -426,6 +481,13 @@ export const DESTINATIONS: Destination[] = [
     weatherOverview: 'Four distinct seasons. Spring & Autumn are mild (15°C–22°C); Summer is humid, Winter is brisk and tranquil.',
     climateType: 'Humid Subtropical',
     budgetLevel: 'Comfortable',
+    priceINR: '₹1,85,000',
+    inrDetails: {
+      flightFromIndia: '₹38,000 – ₹54,000 (DEL/BOM to KIX Osaka or HND Tokyo)',
+      stayPerNight: '₹12,000 – ₹35,000 (Historic machiya townhouses & onsen ryokans)',
+      packageTotal: '₹1,85,000 / person (7-Day Shinkansen pass, kaiseki & private tea master)',
+      bestFor: 'Zen seekers, architecture lovers, gourmands, solo travelers',
+    },
     image: kyotoTemple,
     gallery: [kyotoTemple, heroLandscape, swissSummit],
     tags: ['Culture', 'Pilgrimage', 'Food', 'Wellness', 'Photography'],
@@ -472,6 +534,13 @@ export const DESTINATIONS: Destination[] = [
     weatherOverview: 'Dynamic sub-Antarctic climate; sudden squalls and pristine crystalline sun on the same afternoon.',
     climateType: 'Subpolar Tundra & Alpine',
     budgetLevel: 'Premium',
+    priceINR: '₹3,20,000',
+    inrDetails: {
+      flightFromIndia: '₹1,15,000 – ₹1,48,000 (DEL/BOM to Punta Arenas PUQ via Santiago)',
+      stayPerNight: '₹22,000 – ₹45,000 (EcoCamp geodesic domes & luxury estancias)',
+      packageTotal: '₹3,20,000 / person (10-Day Torres del Paine W-Trek & Perito Moreno ice hike)',
+      bestFor: 'Wilderness adventurers, glacier trekkers, wildlife photographers',
+    },
     image: patagoniaPeaks,
     gallery: [patagoniaPeaks, heroLandscape, icelandAurora],
     tags: ['Adventure', 'Nature', 'Road Trips', 'Photography'],
@@ -518,8 +587,15 @@ export const DESTINATIONS: Destination[] = [
     weatherOverview: 'Tropical; average temperature 28°C year-round. Refreshing coastal winds in dry months.',
     climateType: 'Tropical Savanna',
     budgetLevel: 'Comfortable',
-    image: heroLandscape,
-    gallery: [heroLandscape, kyotoTemple, patagoniaPeaks],
+    priceINR: '₹68,000',
+    inrDetails: {
+      flightFromIndia: '₹24,000 – ₹34,000 (Direct VietJet/Air India/IndiGo to Denpasar DPS)',
+      stayPerNight: '₹4,500 – ₹16,000 (Private pool jungle villas in Ubud & clifftop suites)',
+      packageTotal: '₹68,000 / person (7-Day spiritual purification, Nusa Penida & volcano trek)',
+      bestFor: 'Solo travelers, couples, wellness seekers, surf enthusiasts',
+    },
+    image: baliScenery,
+    gallery: [baliScenery, kyotoTemple, heroLandscape],
     tags: ['Nature', 'Wellness', 'Culture', 'Pilgrimage', 'Luxury'],
     highlights: [
       { title: 'Tegallalang Rice Terraces', desc: 'Cascading emerald green terraces carved into the Ubud hillsides using subak irrigation.' },
@@ -564,8 +640,15 @@ export const DESTINATIONS: Destination[] = [
     weatherOverview: 'Mediterranean; warm, dry sunny summers (26°C–32°C) with refreshing Meltemi winds.',
     climateType: 'Hot Semi-Arid Mediterranean',
     budgetLevel: 'Luxury',
-    image: heroLandscape,
-    gallery: [heroLandscape, swissSummit, icelandAurora],
+    priceINR: '₹2,40,000',
+    inrDetails: {
+      flightFromIndia: '₹55,000 – ₹70,000 (DEL/BOM to JTR Santorini via Athens)',
+      stayPerNight: '₹22,000 – ₹60,000 (Caldera cliff infinity pool suites in Oia/Imerovigli)',
+      packageTotal: '₹2,40,000 / person (7-Day private catamaran, volcanic wine tasting & VIP sunset)',
+      bestFor: 'Luxury honeymooners, photographers, Mediterranean lovers',
+    },
+    image: santoriniScenery,
+    gallery: [santoriniScenery, swissSummit, icelandAurora],
     tags: ['Luxury', 'Romance', 'Culture', 'Photography'],
     highlights: [
       { title: 'Oia Village & Sunset Views', desc: 'World-famous amphitheater of cave houses, windmills, and Aegean twilight hues.' },
@@ -610,8 +693,15 @@ export const DESTINATIONS: Destination[] = [
     weatherOverview: 'Temperate maritime; clear skies and dramatic alpine weather systems.',
     climateType: 'Maritime Temperate',
     budgetLevel: 'Premium',
-    image: patagoniaPeaks,
-    gallery: [patagoniaPeaks, heroLandscape, swissSummit],
+    priceINR: '₹2,85,000',
+    inrDetails: {
+      flightFromIndia: '₹75,000 – ₹98,000 (DEL/BOM to Auckland AKL or Queenstown ZQN via Singapore)',
+      stayPerNight: '₹16,000 – ₹38,000 (Luxury lakeside alpine lodges & glamping pods)',
+      packageTotal: '₹2,85,000 / person (9-Day Milford Sound scenic flight, glacier heli-hike & campervan)',
+      bestFor: 'Road trippers, adrenaline seekers, wilderness lovers',
+    },
+    image: newZealandScenery,
+    gallery: [newZealandScenery, heroLandscape, swissSummit],
     tags: ['Adventure', 'Nature', 'Road Trips', 'Wildlife'],
     highlights: [
       { title: 'Milford Sound (Piopiotahi)', desc: 'Sheer vertical rock faces rising 1,200 meters from dark glacial fjord waters.' },
@@ -656,8 +746,15 @@ export const DESTINATIONS: Destination[] = [
     weatherOverview: 'Continental; sunny warm days with cool, pleasant mornings perfect for balloon launches.',
     climateType: 'Semi-Arid Continental',
     budgetLevel: 'Comfortable',
-    image: heroLandscape,
-    gallery: [heroLandscape, kyotoTemple, swissSummit],
+    priceINR: '₹1,35,000',
+    inrDetails: {
+      flightFromIndia: '₹36,000 – ₹48,000 (DEL/BOM to Kayseri ASR/NAV via Istanbul)',
+      stayPerNight: '₹10,000 – ₹26,000 (Carved volcanic fairy chimney cave suites in Göreme)',
+      packageTotal: '₹1,35,000 / person (6-Day sunrise hot-air balloon flight, underground city & ATV)',
+      bestFor: 'Couples, sunrise photographers, romantic escapades',
+    },
+    image: cappadociaScenery,
+    gallery: [cappadociaScenery, kyotoTemple, swissSummit],
     tags: ['Culture', 'Adventure', 'Pilgrimage', 'Photography', 'Romance'],
     highlights: [
       { title: 'Dawn Hot-Air Balloon Flight', desc: 'Float gently 1,000 meters above volcanic rock spires as the sunrise paints the valleys in gold.' },
@@ -689,6 +786,60 @@ export const DESTINATIONS: Destination[] = [
     ],
     nearbyDestinationIds: ['santorini'],
     coordinates: { lat: 38.6431, lng: 34.8289 },
+  },
+  // 13. SERENGETI (AFRICA) - Flagship African Savannah Frontier
+  {
+    id: 'serengeti',
+    name: 'Serengeti & Ngorongoro',
+    country: 'Tanzania',
+    region: 'Africa',
+    headline: 'THE TIMELESS WILDERNESS OF THE GREAT MIGRATION',
+    shortDescription: 'Golden endless savannahs, millions of migrating wildebeest and zebras, dramatic lion prides, and luxury tented bush lodges.',
+    overview: 'The Serengeti ecosystem is one of earth’s oldest and least disturbed wildernesses. Spanning northern Tanzania into Kenya’s Maasai Mara, its name derives from the Maasai word Siringitu—the place where the land moves on forever. Witnessing a billion hooves crossing crocodile-thronged rivers under an amber African sunset is the ultimate frontier safari.',
+    bestSeason: 'July – October (Mara River Crossings) & January – March (Calving Season)',
+    weatherOverview: 'Tropical savanna; warm sunny days (24°C–28°C) with brisk starry night breezes over the plains.',
+    climateType: 'Tropical Savanna',
+    budgetLevel: 'Luxury',
+    priceINR: '₹2,95,000',
+    inrDetails: {
+      flightFromIndia: '₹44,000 – ₹62,000 (DEL/BOM to Kilimanjaro JRO via Addis Ababa/Nairobi)',
+      stayPerNight: '₹28,000 – ₹65,000 (Luxury mobile tented lodges with private game trackers)',
+      packageTotal: '₹2,95,000 / person (7-Day 4x4 open-roof safari, park conservation fees included)',
+      bestFor: 'Wildlife lovers, photographers, once-in-a-lifetime family expeditions',
+    },
+    image: serengetiScenery,
+    gallery: [serengetiScenery, heroLandscape, patagoniaPeaks],
+    tags: ['Wildlife', 'Adventure', 'Nature', 'Luxury', 'Photography'],
+    highlights: [
+      { title: 'The Great Migration River Crossings', desc: 'Over 1.5 million wildebeest and zebras braving the Mara River currents and predator gauntlets.' },
+      { title: 'Ngorongoro Crater Eden', desc: 'A 260 sq km intact volcanic caldera teeming with 25,000 large animals, including rare black rhinos.' },
+      { title: 'Kopjes Predator Sanctuaries', desc: 'Massive granite boulders rising like islands from the sea of grass where cheetahs and lions scan the plains.' },
+      { title: 'Olduvai Gorge Paleontological Site', desc: 'The Cradle of Humankind where early hominid fossils spanning 2 million years were unearthed.' },
+    ],
+    localExperiences: [
+      'Dawn hot-air balloon safari floating silently over the migration herds followed by a bush champagne breakfast',
+      'Private sunset game tracking with Maasai cultural naturalists',
+      'Fireside starlit boma dinner beneath the Southern Cross constellation',
+    ],
+    food: ['Slow-braised spiced Nyama Choma skewers', 'Fresh coconut spiced fish from Lake Victoria', 'Savory plantain and cardamom curry (Matoke)', 'Single-estate Mount Meru and Kilimanjaro Arabica coffee'],
+    culture: ['Maasai pastoral traditions and ancient warrior rites', 'Pioneering African wildlife conservation ethos', 'Swahili coastal spice influences and hospitality'],
+    adventureActivities: ['Open-top 4x4 off-road game tracking at dawn', 'Walking safari with armed wildlife park rangers', 'Night game drives seeking leopards and bushbabies'],
+    suggestedItinerary: [
+      { day: 'Day 01', title: 'Kilimanjaro to Arusha', desc: 'Arrival under the gaze of Mount Meru; safari briefing and lodge relaxation.' },
+      { day: 'Day 02', title: 'Tarangire Elephant Country', desc: 'Game drive among giant ancient baobab trees and massive elephant herds.' },
+      { day: 'Day 03', title: 'Ngorongoro Crater Amphitheater', desc: 'Descend 600m into the volcanic caldera for an encounter with the Big Five.' },
+      { day: 'Day 04', title: 'Fly to Central Serengeti (Seronera)', desc: 'Bush flight over the endless plains; afternoon predator tracking around kopjes.' },
+      { day: 'Day 05', title: 'Dawn Balloon Safari & Mara River', desc: 'Sunrise flight above migrating herds and watching dramatic river crossings.' },
+      { day: 'Day 06', title: 'Untamed Northern Plains', desc: 'Follow lion prides on the hunt; evening campfire storytelling under the stars.' },
+      { day: 'Day 07', title: 'Bush Flight to Kilimanjaro & Departure', desc: 'Final morning game drive before taking a bush aircraft to Kilimanjaro airport.' },
+    ],
+    travelTips: [
+      'Pack neutral khaki, beige, or olive clothing; avoid dark blue and black which attract tsetse flies.',
+      'Bring a telephoto lens (at least 300mm–400mm) and high-quality binoculars for wildlife observation.',
+      'Yellow fever vaccination card is required for transit depending on routing.',
+    ],
+    nearbyDestinationIds: ['cappadocia', 'bali'],
+    coordinates: { lat: -2.3333, lng: 34.8333 },
   },
 ];
 
@@ -1237,3 +1388,134 @@ export const PERSONALITIES = {
     recommendedDestinationIds: ['kyoto', 'varanasi', 'angkor-wat', 'cappadocia'],
   },
 };
+
+export interface RegionInfo {
+  id: string;
+  name: string;
+  headline: string;
+  scenerySiteName: string;
+  sceneryImage: string;
+  audioId: string;
+  country: string;
+  priceINR: string;
+  priceSubtext: string;
+  flightEstimateINR: string;
+  dailyExpenseINR: string;
+  signatureDestinations: string[];
+  vibe: string;
+  bestMonths: string;
+  badge: string;
+  destinationCount: number;
+}
+
+export const REGIONS_DATA: RegionInfo[] = [
+  {
+    id: 'Asia',
+    name: 'Asia',
+    headline: 'Sacred Temples, High Himalayas, Ghats & Tropical Sanctuaries',
+    scenerySiteName: 'Kyoto Zen Temples & Sacred Ganges Ghats',
+    sceneryImage: kyotoTemple,
+    audioId: 'kyoto',
+    country: 'India, Japan, Indonesia, Cambodia, Bhutan',
+    priceINR: '₹42,000',
+    priceSubtext: 'Starting from ₹42,000 / person (Varanasi ₹32k, Ladakh ₹48k, Bali ₹68k, Kyoto ₹1,85,000)',
+    flightEstimateINR: '₹12,000 – ₹42,000 from DEL/BOM',
+    dailyExpenseINR: '₹3,500 – ₹16,000 / day',
+    signatureDestinations: ['Varanasi (Kashi)', 'Ladakh', 'Kyoto', 'Bali', 'Bhutan', 'Angkor Wat'],
+    vibe: 'Spiritual Reverence, Alpine Buddhist Gompas & Tropical Zen',
+    bestMonths: 'Oct – Mar & Apr – Jun',
+    badge: 'Flagship Sanctuaries',
+    destinationCount: 6,
+  },
+  {
+    id: 'Europe',
+    name: 'Europe',
+    headline: 'Alpine Summits, Caldera Cliffs & Emerald Auroras',
+    scenerySiteName: 'Santorini Caldera & Swiss Matterhorn Summit',
+    sceneryImage: santoriniScenery,
+    audioId: 'santorini',
+    country: 'Greece, Switzerland, Iceland',
+    priceINR: '₹1,65,000',
+    priceSubtext: 'Starting from ₹1,65,000 / person (Iceland ₹2,10k, Santorini ₹2,40k, Swiss ₹2,65,000)',
+    flightEstimateINR: '₹48,000 – ₹68,000 from DEL/BOM',
+    dailyExpenseINR: '₹18,000 – ₹38,000 / day',
+    signatureDestinations: ['Santorini Caldera', 'Swiss Alps', 'Iceland Ring Road'],
+    vibe: 'Panoramic Luxury, Calving Glaciers & Cycladic Sunsets',
+    bestMonths: 'May – Sep & Nov – Feb (Northern Lights)',
+    badge: 'Iconic Scenery Sites',
+    destinationCount: 3,
+  },
+  {
+    id: 'Africa',
+    name: 'Africa',
+    headline: 'Endless Golden Savannahs, Great Migrations & Luxury Bush Lodges',
+    scenerySiteName: 'Serengeti Savannah Acacia Plains & Ngorongoro Eden',
+    sceneryImage: serengetiScenery,
+    audioId: 'serengeti',
+    country: 'Tanzania & East Africa',
+    priceINR: '₹1,95,000',
+    priceSubtext: 'Starting from ₹1,95,000 / person (Full Safari & Luxury Bush Camps)',
+    flightEstimateINR: '₹44,000 – ₹62,000 from DEL/BOM',
+    dailyExpenseINR: '₹24,000 – ₹48,000 / day (Incl. Park Conservation Fees)',
+    signatureDestinations: ['Serengeti National Park', 'Ngorongoro Crater', 'Tarangire'],
+    vibe: 'Raw Wildlife Safari, Big Five & Starlit Bush Bomas',
+    bestMonths: 'Jul – Oct (River Crossings) & Jan – Mar',
+    badge: 'Wilderness Frontier',
+    destinationCount: 1,
+  },
+  {
+    id: 'Oceania',
+    name: 'Oceania',
+    headline: 'Towering Fjords, Bioluminescent Glowworms & Alpine Great Walks',
+    scenerySiteName: 'Milford Sound Mitre Peak & Southern Alps',
+    sceneryImage: newZealandScenery,
+    audioId: 'new-zealand',
+    country: 'New Zealand & Southern Pacific',
+    priceINR: '₹2,20,000',
+    priceSubtext: 'Starting from ₹2,20,000 / person (9-Day Road Odyssey & Fjord Cruises)',
+    flightEstimateINR: '₹72,000 – ₹95,000 from DEL/BOM',
+    dailyExpenseINR: '₹16,000 – ₹34,000 / day',
+    signatureDestinations: ['Milford Sound', 'Queenstown', 'Aoraki Mount Cook'],
+    vibe: 'Fjordland Mist, Emerald Rainforests & Pure Adventure',
+    bestMonths: 'Dec – Mar (Southern Hemisphere Summer)',
+    badge: 'Glacial Fjords',
+    destinationCount: 1,
+  },
+  {
+    id: 'South America',
+    name: 'South America',
+    headline: 'Granite Horns, Calving Blue Glaciers & Untamed Steppe',
+    scenerySiteName: 'Patagonia Torres del Paine & Perito Moreno',
+    sceneryImage: patagoniaPeaks,
+    audioId: 'patagonia',
+    country: 'Chile & Argentina',
+    priceINR: '₹2,75,000',
+    priceSubtext: 'Starting from ₹2,75,000 / person (10-Day Glacial Circuit)',
+    flightEstimateINR: '₹1,15,000 – ₹1,48,000 from India',
+    dailyExpenseINR: '₹18,000 – ₹36,000 / day',
+    signatureDestinations: ['Torres del Paine', 'Perito Moreno Glacier', 'Mount Fitz Roy'],
+    vibe: 'End-of-World Horizons, Gaucho Lore & Glacial Ice Hikes',
+    bestMonths: 'Nov – Mar (Austral Summer)',
+    badge: 'Glacial Horizons',
+    destinationCount: 1,
+  },
+  {
+    id: 'Middle East',
+    name: 'Middle East & Eurasia',
+    headline: 'Fairy Chimneys, Hundreds of Sunrise Balloons & Ancient Caves',
+    scenerySiteName: 'Cappadocia Love Valley & Göreme Cave Sanctuaries',
+    sceneryImage: cappadociaScenery,
+    audioId: 'cappadocia',
+    country: 'Turkey & Eurasia',
+    priceINR: '₹1,15,000',
+    priceSubtext: 'Starting from ₹1,15,000 / person (6-Day Cave Suite & Sunrise Balloon)',
+    flightEstimateINR: '₹34,000 – ₹48,000 from DEL/BOM',
+    dailyExpenseINR: '₹10,000 – ₹22,000 / day',
+    signatureDestinations: ['Göreme Valley', 'Derinkuyu Underground City', 'Love Valley'],
+    vibe: 'Surreal Rock Formations & Anatolian Heritage',
+    bestMonths: 'Apr – Jun & Sep – Nov',
+    badge: 'Sunrise Balloons',
+    destinationCount: 1,
+  },
+];
+

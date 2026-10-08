@@ -62,6 +62,14 @@ export const REGIONAL_SOUND_MAP: Record<string, { title: string; description: st
     title: 'Fjordland Waterfalls & Native Bellbird Chimes',
     description: 'Cascading alpine water spray, mountain canyon breeze & sweet native bird whistle notes',
   },
+  serengeti: {
+    title: 'African Savannah Dusk Breeze & Tribal Log Drums',
+    description: 'Warm golden savannah wind, deep rhythmic tribal drum pulse & twilight cicada chorus',
+  },
+  santorini: {
+    title: 'Aegean Waves & Cycladic Chapel Bell',
+    description: 'Cobalt Mediterranean surf wash, sun-warmed sea breeze & clear brass chapel bell toll',
+  },
 };
 
 let activeAudioContext: AudioContext | null = null;
@@ -366,6 +374,75 @@ export function play6SecRegionalSound(
       burnerGain.connect(masterGain);
       noise.start(now);
       noise.stop(now + duration);
+    } else if (id.includes('serengeti') || id.includes('africa') || id.includes('safari')) {
+      // 8. SERENGETI / AFRICA: Savannah dusk breeze + African rhythmic log drum heartbeats
+      const { noise, filter } = createNoise('lowpass', 480, 1.0);
+      const windGain = ctx.createGain();
+      windGain.gain.setValueAtTime(0.08, now);
+      filter.connect(windGain);
+      windGain.connect(masterGain);
+      noise.start(now);
+      noise.stop(now + duration);
+
+      // Resonant deep tribal drum beats (80Hz - 110Hz damped pulses)
+      const drumBeats = [0.3, 1.1, 1.9, 2.7, 3.8, 4.6];
+      drumBeats.forEach((timeOffset, idx) => {
+        const drumOsc = ctx.createOscillator();
+        const drumGain = ctx.createGain();
+        drumOsc.type = 'sine';
+        drumOsc.frequency.setValueAtTime(idx % 2 === 0 ? 82 : 110, now + timeOffset);
+        drumOsc.frequency.exponentialRampToValueAtTime(45, now + timeOffset + 0.35);
+
+        drumGain.gain.setValueAtTime(0.35, now + timeOffset);
+        drumGain.gain.exponentialRampToValueAtTime(0.001, now + timeOffset + 0.4);
+
+        drumOsc.connect(drumGain);
+        drumGain.connect(masterGain);
+        drumOsc.start(now + timeOffset);
+        drumOsc.stop(now + timeOffset + 0.45);
+        sourcesToStop.push(drumOsc);
+      });
+    } else if (id.includes('santorini') || id.includes('greece') || id.includes('mediterranean')) {
+      // 9. SANTORINI: Aegean azure waves + Church bells + Warm coastal breeze
+      const { noise, filter } = createNoise('bandpass', 400, 1.5);
+      const waveGain = ctx.createGain();
+      waveGain.gain.setValueAtTime(0.04, now);
+      waveGain.gain.linearRampToValueAtTime(0.25, now + 2.0);
+      waveGain.gain.linearRampToValueAtTime(0.06, now + 5.0);
+      filter.connect(waveGain);
+      waveGain.connect(masterGain);
+      noise.start(now);
+      noise.stop(now + duration);
+
+      // Cycladic brass church bells
+      playBell(659, now + 0.4, 3.8, 0.32); // E5
+      playBell(880, now + 2.2, 3.2, 0.26); // A5
+    } else if (id.includes('new-zealand') || id.includes('oceania') || id.includes('fjord')) {
+      // 10. NEW ZEALAND: Fjord waterfall roar + Native Bellbird melodic whistling
+      const { noise, filter } = createNoise('bandpass', 320, 2);
+      const waterfallGain = ctx.createGain();
+      waterfallGain.gain.setValueAtTime(0.12, now);
+      filter.connect(waterfallGain);
+      waterfallGain.connect(masterGain);
+      noise.start(now);
+      noise.stop(now + duration);
+
+      // Bellbird high ringing chimes
+      playBell(1580, now + 0.8, 1.2, 0.2);
+      playBell(2100, now + 1.4, 1.0, 0.18);
+      playBell(1760, now + 2.8, 1.5, 0.22);
+    } else if (id.includes('patagonia') || id.includes('south-america') || id.includes('andes')) {
+      // 11. PATAGONIA: Glacial wind squall + Low acoustic harmonic arpeggio
+      const { noise, filter } = createNoise('bandpass', 480, 5);
+      filter.frequency.linearRampToValueAtTime(850, now + 2.5);
+      filter.frequency.linearRampToValueAtTime(380, now + 5.2);
+      filter.connect(masterGain);
+      noise.start(now);
+      noise.stop(now + duration);
+
+      playBell(330, now + 0.5, 3.5, 0.28); // E4
+      playBell(494, now + 1.6, 3.2, 0.22); // B4
+      playBell(659, now + 3.0, 2.8, 0.18); // E5
     } else {
       // 8. GENERAL ADVENTURE: Dynamic mountain wind + Crystal explorer bell
       const { noise, filter } = createNoise('bandpass', 520, 2);
