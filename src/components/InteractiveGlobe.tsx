@@ -5,13 +5,16 @@ import { Globe, MapPin, ArrowRight, Heart, Volume2 } from 'lucide-react';
 
 export const InteractiveGlobe: React.FC = () => {
   const { navigate, toggleSaveDestination, isDestinationSaved, triggerRegionalSound } = useJourney();
-  const [selectedRegion, setSelectedRegion] = useState<string>('Europe');
+  const [selectedRegion, setSelectedRegion] = useState<string>('Asia');
 
   const regions = [
-    { id: 'Europe', label: 'Europe', coords: '48°N 15°E', count: 3, highlight: 'Alpine summits, volcanic calderas & Arctic auroras' },
     { id: 'Asia', label: 'Asia', coords: '25°N 82°E', count: 6, highlight: 'Sacred Ganges ghats, Himalayan monasteries, Zen temples & Angkor spires' },
-    { id: 'South America', label: 'South America', coords: '20°S 60°W', count: 1, highlight: 'Untamed Patagonian granite spires and glacial steppe' },
-    { id: 'Oceania', label: 'Oceania', coords: '25°S 140°E', count: 1, highlight: 'Glacial fjords, alpine Great Walks & glowworm grottos' },
+    { id: 'Europe', label: 'Europe', coords: '48°N 15°E', count: 3, highlight: 'Alpine summits, volcanic calderas & Arctic auroras' },
+    { id: 'Africa', label: 'Africa', coords: '1°S 37°E', count: 2, highlight: 'Serengeti Great Migration & 4,500-year-old Great Pyramids of Giza' },
+    { id: 'North America', label: 'North America', coords: '51°N 115°W', count: 1, highlight: 'Banff turquoise glacial lakes & towering Canadian Rocky summits' },
+    { id: 'South America', label: 'South America', coords: '13°S 72°W', count: 2, highlight: 'Machu Picchu Inca cloud citadel & Patagonian granite spires' },
+    { id: 'Oceania', label: 'Oceania', coords: '16°S 145°E', count: 2, highlight: 'Great Barrier Reef living corals & New Zealand glacial fjords' },
+    { id: 'Antarctica', label: 'Antarctica', coords: '64°S 62°W', count: 1, highlight: 'Seventh Continent: Lemaire Channel, calving icebergs & gentoo penguins' },
   ];
 
   const filteredDestinations = DESTINATIONS.filter(
@@ -169,11 +172,11 @@ export const InteractiveGlobe: React.FC = () => {
                     {dest.shortDescription}
                   </p>
 
-                  {/* Clean unboxed metadata with bullet separators (anti-slop rule) */}
+                  {/* Clean unboxed metadata with bullet separators */}
                   <div className="flex items-center gap-2 text-xs text-slate-400 pt-1">
                     <span>{dest.region}</span>
                     <span aria-hidden="true">·</span>
-                    <span>{dest.budgetLevel}</span>
+                    <span className="text-amber-300 font-mono font-semibold">{dest.priceINR}</span>
                     <span aria-hidden="true">·</span>
                     <span className="text-amber-400/90">{dest.tags[0]}</span>
                   </div>

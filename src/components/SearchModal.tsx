@@ -33,9 +33,14 @@ export const SearchModal: React.FC = () => {
           d.name.toLowerCase().includes(q) ||
           d.country.toLowerCase().includes(q) ||
           d.region.toLowerCase().includes(q) ||
+          (d.indianState && d.indianState.toLowerCase().includes(q)) ||
+          (d.wonderName && d.wonderName.toLowerCase().includes(q)) ||
+          (q === 'india' && d.country.toLowerCase() === 'india') ||
+          ((q.includes('wonder') || q.includes('wonders')) && (d.isWorldWonder || d.id === 'giza')) ||
+          d.shortDescription.toLowerCase().includes(q) ||
           d.tags.some((t) => t.toLowerCase().includes(q))
       )
-    : DESTINATIONS.slice(0, 4);
+    : DESTINATIONS.slice(0, 6);
 
   const matchedExperiences = q
     ? EXPERIENCES.filter(
@@ -86,6 +91,33 @@ export const SearchModal: React.FC = () => {
           </kbd>
         </div>
 
+        {/* Quick Search Chips */}
+        {!query && (
+          <div className="px-4 py-2 bg-white/[0.02] border-b border-white/5 flex items-center gap-1.5 overflow-x-auto no-scrollbar text-xs">
+            <span className="text-[10px] uppercase font-semibold text-slate-500 font-display shrink-0">
+              Popular:
+            </span>
+            {[
+              'Seven Wonders',
+              'Kerala',
+              'Araku',
+              'Ooty',
+              'Coorg',
+              'Manali',
+              'Pondicherry',
+              'Taj Mahal',
+            ].map((term) => (
+              <button
+                key={term}
+                onClick={() => setQuery(term)}
+                className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-amber-500/20 text-slate-300 hover:text-amber-300 text-[11px] whitespace-nowrap transition-colors"
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Results Area */}
         <div className="max-h-[65vh] overflow-y-auto p-4 space-y-6">
           {/* Destinations */}
@@ -118,12 +150,28 @@ export const SearchModal: React.FC = () => {
                         <div className="text-sm font-semibold text-white group-hover:text-amber-300 transition-colors flex items-center gap-1.5">
                           <span>{dest.name}</span>
                           <span className="text-xs text-slate-400 font-normal">· {dest.country}</span>
+                          {(dest.isWorldWonder || dest.id === 'giza') && (
+                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300">
+                              Wonder
+                            </span>
+                          )}
+                          {dest.isIndiaSpecial && (
+                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300">
+                              {dest.indianState}
+                            </span>
+                          )}
                         </div>
                         <div className="text-xs text-slate-400 flex items-center gap-1.5 line-clamp-1">
                           <MapPin className="w-3 h-3 text-amber-400/80 shrink-0" />
                           <span>{dest.region}</span>
                           <span>·</span>
-                          <span className="text-slate-500">{dest.bestSeason}</span>
+                          {dest.priceINR && (
+                            <>
+                              <span className="text-amber-300 font-mono font-medium">{dest.priceINR}</span>
+                              <span>·</span>
+                            </>
+                          )}
+                          <span className="text-slate-500">{dest.bestSeason.split('(')[0].trim()}</span>
                         </div>
                       </div>
                     </div>

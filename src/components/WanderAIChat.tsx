@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useJourney } from '../context/JourneyContext';
-import { Sparkles, X, Minimize2, Maximize2, Send, RotateCcw, Compass, MapPin, ArrowRight, Bot, User } from 'lucide-react';
+import { Sparkles, X, Minimize2, Maximize2, Send, RotateCcw, Compass, MapPin, ArrowRight, Bot, User, BookOpen } from 'lucide-react';
+import { generateRagGroundedResponse } from '../utils/ragEngine';
 
 interface ChatMessage {
   id: string;
@@ -9,6 +10,7 @@ interface ChatMessage {
   timestamp: string;
   suggestedPrompts?: string[];
   destinationLink?: string;
+  ragSources?: string[];
 }
 
 export const WanderAIChat: React.FC = () => {
@@ -112,19 +114,21 @@ export const WanderAIChat: React.FC = () => {
           text: data.reply,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           suggestedPrompts: followUps,
+          ragSources: data.ragSources || undefined,
         },
       ]);
     } catch {
-      // High-quality local reasoning fallback if backend call fails
-      const fallbackReply = generateLocalTravelResponse(query, chatContext);
+      // High-quality RAG grounded local reasoning fallback if backend call fails or on static hosting
+      const { reply: ragReply, sources } = generateRagGroundedResponse(query, chatContext);
       setMessages((prev) => [
         ...prev,
         {
           id: `ai-${Date.now()}`,
           sender: 'assistant',
-          text: fallbackReply,
+          text: ragReply,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          suggestedPrompts: ['Plan a 7-day itinerary', 'What should I pack?', 'Best hidden gems'],
+          suggestedPrompts: ['What are real prices in INR?', 'How to avoid altitude sickness?', 'Vegetarian food options', 'Best packing hacks'],
+          ragSources: sources,
         },
       ]);
     } finally {
@@ -298,6 +302,24 @@ export const WanderAIChat: React.FC = () => {
                   >
                     {renderFormattedText(msg.text)}
                   </div>
+
+                  {/* RAG Knowledge Grounding Badges */}
+                  {msg.ragSources && msg.ragSources.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1.5 pt-0.5 px-0.5">
+                      <span className="text-[10px] text-amber-300 font-mono font-semibold flex items-center gap-1">
+                        <Sparkles className="w-2.5 h-2.5 text-amber-400" />
+                        RAG Grounded:
+                      </span>
+                      {msg.ragSources.map((source, sIdx) => (
+                        <span
+                          key={sIdx}
+                          className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-400/25 text-amber-200"
+                        >
+                          {source}
+                        </span>
+                      ))}
+                    </div>
+                  )}
 
                   <div className={`text-[10px] text-slate-500 px-1 ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}>
                     {msg.timestamp}

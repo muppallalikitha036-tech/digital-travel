@@ -1,24 +1,32 @@
 import React, { useState } from 'react';
 import { useJourney } from '../context/JourneyContext';
 import { DESTINATIONS } from '../data/travelData';
-import { Search, Heart, ArrowRight, SlidersHorizontal, RotateCcw, Volume2 } from 'lucide-react';
+import { Search, Heart, ArrowRight, SlidersHorizontal, RotateCcw, Volume2, Landmark, Sparkles } from 'lucide-react';
 
 export const DestinationsPage: React.FC = () => {
   const { navigate, toggleSaveDestination, isDestinationSaved, triggerRegionalSound } = useJourney();
 
   // Filters state
+  const [selectedCollection, setSelectedCollection] = useState<'all' | 'wonders' | 'india'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
   const [selectedTag, setSelectedTag] = useState<string>('all');
   const [selectedBudget, setSelectedBudget] = useState<string>('all');
   const [selectedSeason, setSelectedSeason] = useState<string>('all');
 
-  const regions = ['all', 'Europe', 'Asia', 'South America', 'Oceania'];
+  const regions = ['all', 'Asia', 'Europe', 'Africa', 'North America', 'South America', 'Oceania', 'Antarctica'];
   const tags = ['all', 'Pilgrimage', 'Culture', 'Adventure', 'Nature', 'Luxury', 'Photography', 'Road Trips', 'Wellness'];
   const budgets = ['all', 'Comfortable', 'Premium', 'Luxury'];
   const seasons = ['all', 'Winter', 'Spring', 'Summer', 'Autumn'];
 
   const filteredDestinations = DESTINATIONS.filter((d) => {
+    // Special Curated Collection (7 Wonders or Incredible India)
+    if (selectedCollection === 'wonders') {
+      if (!d.isWorldWonder && d.id !== 'giza') return false;
+    } else if (selectedCollection === 'india') {
+      if (!d.isIndiaSpecial && d.country !== 'India') return false;
+    }
+
     // Search
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -26,7 +34,12 @@ export const DestinationsPage: React.FC = () => {
         d.name.toLowerCase().includes(q) ||
         d.country.toLowerCase().includes(q) ||
         d.region.toLowerCase().includes(q) ||
-        d.shortDescription.toLowerCase().includes(q);
+        (d.indianState && d.indianState.toLowerCase().includes(q)) ||
+        (d.wonderName && d.wonderName.toLowerCase().includes(q)) ||
+        (q === 'india' && d.country.toLowerCase() === 'india') ||
+        ((q.includes('wonder') || q.includes('wonders')) && (d.isWorldWonder || d.id === 'giza')) ||
+        d.shortDescription.toLowerCase().includes(q) ||
+        d.tags.some((t) => t.toLowerCase().includes(q));
       if (!match) return false;
     }
 
@@ -49,6 +62,7 @@ export const DestinationsPage: React.FC = () => {
   });
 
   const resetFilters = () => {
+    setSelectedCollection('all');
     setSearchQuery('');
     setSelectedRegion('all');
     setSelectedTag('all');
@@ -57,6 +71,7 @@ export const DestinationsPage: React.FC = () => {
   };
 
   const hasActiveFilters =
+    selectedCollection !== 'all' ||
     searchQuery ||
     selectedRegion !== 'all' ||
     selectedTag !== 'all' ||
@@ -103,6 +118,44 @@ export const DestinationsPage: React.FC = () => {
                 <span>Reset Filters</span>
               </button>
             )}
+          </div>
+
+          {/* Curated Spotlight Collections: 7 Wonders & Incredible India */}
+          <div className="flex flex-wrap items-center gap-2 pb-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 font-display shrink-0 mr-1">
+              Spotlight:
+            </span>
+            <button
+              onClick={() => setSelectedCollection('all')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-display tracking-wider transition-all ${
+                selectedCollection === 'all'
+                  ? 'bg-white text-slate-950 font-bold shadow-md'
+                  : 'bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 border border-white/5'
+              }`}
+            >
+              All Destinations ({DESTINATIONS.length})
+            </button>
+            <button
+              onClick={() => setSelectedCollection('wonders')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-display tracking-wider transition-all flex items-center gap-1.5 ${
+                selectedCollection === 'wonders'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-lg shadow-amber-500/20'
+                  : 'bg-white/5 text-amber-300/90 hover:text-amber-200 hover:bg-white/10 border border-amber-400/20'
+              }`}
+            >
+              <Landmark className="w-3.5 h-3.5" />
+              <span>🏛️ Seven Wonders of the World (8)</span>
+            </button>
+            <button
+              onClick={() => setSelectedCollection('india')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-display tracking-wider transition-all flex items-center gap-1.5 ${
+                selectedCollection === 'india'
+                  ? 'bg-gradient-to-r from-amber-500 to-emerald-500 text-slate-950 font-bold shadow-lg'
+                  : 'bg-white/5 text-emerald-300/90 hover:text-emerald-200 hover:bg-white/10 border border-emerald-500/20'
+              }`}
+            >
+              <span>🇮🇳 Incredible India Spots (Kerala, Araku, Ooty, Coorg, Manali, Pondy...)</span>
+            </button>
           </div>
 
           {/* Interactive Tag & Category Selectors */}
@@ -240,6 +293,21 @@ export const DestinationsPage: React.FC = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0C1322] via-transparent to-transparent"></div>
 
+                  {/* Badges for 7 Wonders and Incredible India */}
+                  <div className="absolute top-4 left-4 flex flex-wrap items-center gap-1.5 z-10">
+                    {(dest.isWorldWonder || dest.id === 'giza') && (
+                      <span className="px-2.5 py-1 bg-amber-500/95 text-slate-950 text-[10px] font-bold font-display uppercase tracking-wider rounded-lg shadow-md flex items-center gap-1">
+                        <Landmark className="w-3 h-3" />
+                        <span>{dest.id === 'giza' ? 'Ancient Wonder' : '7 Wonder'}</span>
+                      </span>
+                    )}
+                    {dest.isIndiaSpecial && (
+                      <span className="px-2.5 py-1 bg-amber-600/95 text-white text-[10px] font-bold font-display uppercase tracking-wider rounded-lg shadow-md">
+                        🇮🇳 {dest.indianState || 'India'}
+                      </span>
+                    )}
+                  </div>
+
                   {/* Favorite Heart Button */}
                   <button
                     onClick={(e) => {
@@ -296,6 +364,12 @@ export const DestinationsPage: React.FC = () => {
                       <span>{dest.region}</span>
                       <span aria-hidden="true">·</span>
                       <span>{dest.budgetLevel}</span>
+                      {dest.priceINR && (
+                        <>
+                          <span aria-hidden="true">·</span>
+                          <span className="text-amber-300 font-mono font-bold">{dest.priceINR}</span>
+                        </>
+                      )}
                       <span aria-hidden="true">·</span>
                       <span className="text-amber-400/90">{dest.tags[0]}</span>
                     </div>

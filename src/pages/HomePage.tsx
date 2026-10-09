@@ -4,6 +4,9 @@ import { DESTINATIONS, TRAVEL_STORIES } from '../data/travelData';
 import { InteractiveGlobe } from '../components/InteractiveGlobe';
 import { AdventureMoodSelector } from '../components/AdventureMoodSelector';
 import { AutumnBlossomVideoHero } from '../components/AutumnBlossomVideoHero';
+import { WorldRegionsShowcase } from '../components/WorldRegionsShowcase';
+import { SevenWondersShowcase } from '../components/SevenWondersShowcase';
+import { IncredibleIndiaShowcase } from '../components/IncredibleIndiaShowcase';
 import { Compass, ArrowRight, Heart, Sparkles, BookOpen, ShieldCheck, Star, Volume2 } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
@@ -90,16 +93,16 @@ export const HomePage: React.FC = () => {
           {/* Mobile Hero Quick-Stats Bar */}
           <div className="mt-6 sm:mt-8 grid grid-cols-3 gap-2 sm:gap-6 w-full max-w-lg px-3 py-2.5 sm:py-3.5 rounded-2xl bg-black/45 backdrop-blur-xl border border-white/10 text-center shadow-xl">
             <div>
-              <div className="text-base sm:text-xl font-display font-bold text-amber-300">12+</div>
-              <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-medium">Sanctuaries</div>
+              <div className="text-base sm:text-xl font-display font-bold text-amber-300">7 Continents</div>
+              <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-medium">18+ Sanctuaries</div>
             </div>
             <div className="border-x border-white/10">
-              <div className="text-base sm:text-xl font-display font-bold text-amber-300">4K Live</div>
-              <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-medium">Video Canvas</div>
+              <div className="text-base sm:text-xl font-display font-bold text-amber-300">₹ INR</div>
+              <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-medium">Real Currency</div>
             </div>
             <div>
               <div className="text-base sm:text-xl font-display font-bold text-amber-300">6s Audio</div>
-              <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-medium">Synthesizer</div>
+              <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-medium">Soundscapes</div>
             </div>
           </div>
 
@@ -210,12 +213,15 @@ export const HomePage: React.FC = () => {
                     <span>{dest.region}</span>
                     <span aria-hidden="true">·</span>
                     <span>{dest.budgetLevel}</span>
+                    {dest.priceINR && (
+                      <>
+                        <span aria-hidden="true">·</span>
+                        <span className="text-amber-300 font-mono font-bold">{dest.priceINR}</span>
+                      </>
+                    )}
                     <span aria-hidden="true">·</span>
-                    {dest.tags.slice(0, 2).map((t, idx) => (
-                      <React.Fragment key={t}>
-                        <span className="text-amber-400/90">{t}</span>
-                        {idx === 0 && <span aria-hidden="true">·</span>}
-                      </React.Fragment>
+                    {dest.tags.slice(0, 1).map((t) => (
+                      <span key={t} className="text-amber-400/90">{t}</span>
                     ))}
                   </div>
                 </div>
@@ -233,6 +239,15 @@ export const HomePage: React.FC = () => {
           ))}
         </div>
       </section>
+
+      {/* 2.5 World Regions Showcase with Live Hover Audio & Real Indian Prices */}
+      <WorldRegionsShowcase />
+
+      {/* 2.6 The Seven Wonders of the World Interactive Showcase */}
+      <SevenWondersShowcase />
+
+      {/* 2.7 Incredible India Showcase: Kerala, Araku, Ooty, Coorg, Manali, Pondicherry & Beyond */}
+      <IncredibleIndiaShowcase />
 
       {/* 3. "HOW DO YOU WANT TO FEEL?" Section */}
       <AdventureMoodSelector />

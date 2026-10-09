@@ -15,7 +15,11 @@ import {
   ShieldAlert,
   ArrowLeft,
   Volume2,
+  Plane,
+  Building,
+  CheckCircle2,
 } from 'lucide-react';
+import { DestinationWeatherWidget } from '../components/DestinationWeatherWidget';
 
 interface DestinationDetailPageProps {
   destinationId: string;
@@ -203,6 +207,56 @@ export const DestinationDetailPage: React.FC<DestinationDetailPageProps> = ({ de
             </div>
           </div>
         </div>
+      </section>
+
+      {/* 2.5 Real-Time Satellite Weather & Expedition Pricing HUD */}
+      <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        {/* Real-Time Live Weather Widget Component */}
+        <DestinationWeatherWidget
+          destinationName={destination.name}
+          country={destination.country}
+          coordinates={destination.coordinates}
+          bestSeason={destination.bestSeason}
+        />
+
+        {/* Real Indian Rupee (₹ INR) Logistics & Pricing Box if available */}
+        {destination.priceINR && (
+          <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-black/40 border border-amber-400/30 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/25 text-amber-300 text-xs font-mono font-semibold">
+                <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                <span>Verified Expedition Pricing (Departures from India)</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-display font-bold text-white">
+                Starting Package: <span className="text-amber-400 font-extrabold">{destination.priceINR}</span>{' '}
+                <span className="text-xs text-slate-400 font-normal">/ person</span>
+              </h3>
+              {destination.inrDetails && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs font-mono text-slate-300">
+                  <div className="flex items-center gap-2">
+                    <Plane className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <span>Flights: {destination.inrDetails.flightFromIndia}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Building className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <span>Stay: {destination.inrDetails.stayPerNight}</span>
+                  </div>
+                  <div className="sm:col-span-2 text-slate-400 text-[11px] pt-1 border-t border-white/5">
+                    ✦ {destination.inrDetails.packageTotal}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => navigate('/planner')}
+              className="px-7 py-4 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-display font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-xl shadow-amber-500/20 hover:scale-105 active:scale-95 transition-all duration-200 shrink-0 flex items-center justify-center gap-2"
+            >
+              <span>CUSTOMIZE IN TRIP PLANNER</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </section>
 
       {/* 3. Interactive Highlights */}

@@ -12,7 +12,9 @@ import {
   User as UserIcon,
   LogOut,
   ShieldCheck,
+  Presentation,
 } from 'lucide-react';
+import { PresentationGuideModal } from './PresentationGuideModal';
 
 export const Navbar: React.FC = () => {
   const {
@@ -32,6 +34,7 @@ export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [presentationOpen, setPresentationOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
   const totalSavedCount = savedDestinationIds.length + savedExperienceIds.length;
@@ -150,6 +153,18 @@ export const Navbar: React.FC = () => {
                   {totalSavedCount}
                 </span>
               )}
+            </button>
+
+            {/* Presentation Guide Modal Trigger */}
+            <button
+              onClick={() => setPresentationOpen(true)}
+              aria-label="Open Project Presentation Guide"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 hover:border-amber-400/60 rounded-full text-xs font-semibold text-amber-300 transition-all shadow-sm active:scale-95 whitespace-nowrap"
+              title="Open simple presentation guide with talking points & demo script"
+            >
+              <Presentation className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">Presentation Guide</span>
+              <span className="sm:hidden">Guide</span>
             </button>
 
             {/* Animate Images into Video (Veo) */}
@@ -418,6 +433,12 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Presentation Guide Modal */}
+      <PresentationGuideModal
+        isOpen={presentationOpen}
+        onClose={() => setPresentationOpen(false)}
+      />
     </>
   );
 };

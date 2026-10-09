@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { GoogleGenAI, GenerateVideosOperation } from '@google/genai';
+import { buildRagPromptContext } from './src/utils/ragEngine';
 
 dotenv.config();
 
@@ -36,12 +37,23 @@ async function startServer() {
         return res.status(400).json({ error: 'Message is required' });
       }
 
+      // 1. Retrieve grounded domain knowledge chunks via RAG engine
+      const { contextText: ragKnowledge, retrievedSources } = buildRagPromptContext(message, 3);
+
       if (aiClient) {
         try {
           const systemInstruction = `You are WanderAI, an ultra-luxury, discerning, and knowledgeable digital travel companion for "TRAVEL REIMAGINED".
-You specialize in bespoke, cinematic, and sustainable journeys across the globe (e.g., Iceland, Swiss Alps, Kyoto, Patagonia, Bali, Santorini, Sahara, New Zealand, Maldives, Norway, Cappadocia).
+You specialize in bespoke, cinematic, and sustainable journeys across the globe (e.g., Varanasi, Ladakh, Bhutan, Angkor Wat, Iceland, Swiss Alps, Kyoto, Patagonia, Bali, Santorini, Serengeti, New Zealand, Cappadocia).
 Current user page context: ${context ? JSON.stringify(context) : 'General exploration'}.
-Provide inspiring, highly practical, and elegant recommendations. Use bullet points or concise paragraphs. Be warm, adventurous, and culturally respectful. Keep answers focused (under 180 words unless the user explicitly requests a full itinerary).`;
+
+RETRIEVED DOMAIN KNOWLEDGE (RAG GROUNDING):
+${ragKnowledge}
+
+INSTRUCTIONS:
+1. Ground your answer in the retrieved facts above (especially real Indian Rupee prices in ₹ INR, flight routes from India, visa policies, altitude safety, and dietary accommodations).
+2. Answer both standard trip questions and creative out-of-the-box questions (e.g. altitude sickness, solo female safety, vegetarian/Jain food, camera gear in freezing temperatures).
+3. Be warm, inspiring, and concise (under 200 words unless the user explicitly requests an in-depth day-by-day itinerary).
+4. Use clean formatting with bullet points and bold highlights.`;
 
           const response = await aiClient.models.generateContent({
             model: 'gemini-3.8-flash',
@@ -54,7 +66,7 @@ Provide inspiring, highly practical, and elegant recommendations. Use bullet poi
           });
 
           const replyText = response.text?.trim() || 'I am ready to help you plan your next journey.';
-          return res.json({ reply: replyText, source: 'gemini' });
+          return res.json({ reply: replyText, source: 'gemini-rag', ragSources: retrievedSources });
         } catch (apiErr) {
           console.warn('Gemini generateContent error, falling back to local reasoning:', apiErr);
         }

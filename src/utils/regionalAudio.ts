@@ -70,6 +70,26 @@ export const REGIONAL_SOUND_MAP: Record<string, { title: string; description: st
     title: 'Aegean Waves & Cycladic Chapel Bell',
     description: 'Cobalt Mediterranean surf wash, sun-warmed sea breeze & clear brass chapel bell toll',
   },
+  banff: {
+    title: 'Canadian Rockies Pine Wind & Crystal Alpine Chimes',
+    description: 'Glacial canyon mountain breeze, rustling spruce needles & crystalline lake reflections',
+  },
+  'machu-picchu': {
+    title: 'Andean Cloud Forest Flute & Sacred Incan Mountain Echo',
+    description: 'Pentatonic Andean pan flute melody, misty valley gusts & ancient stone terrace reverb',
+  },
+  giza: {
+    title: 'Giza Twilight Desert Wind & Resonant Pharaonic Drone',
+    description: 'Silken desert sand dune currents, deep acoustic oud strum & sunset call echo across pyramids',
+  },
+  'great-barrier-reef': {
+    title: 'Coral Sea Azure Waves & Subaquatic Marine Resonance',
+    description: 'Warm tropical reef breakers, rhythmic ocean swells & crystal-clear barrier reef tide wash',
+  },
+  antarctica: {
+    title: 'Polar Ice Shelf Howling Gale & Calving Sapphire Glacier',
+    description: 'Sub-zero Antarctic katabatic winds, deep thunderous ice calf sub-bass & glass iceberg chimes',
+  },
 };
 
 let activeAudioContext: AudioContext | null = null;
@@ -443,6 +463,90 @@ export function play6SecRegionalSound(
       playBell(330, now + 0.5, 3.5, 0.28); // E4
       playBell(494, now + 1.6, 3.2, 0.22); // B4
       playBell(659, now + 3.0, 2.8, 0.18); // E5
+    } else if (id.includes('banff') || id.includes('canada') || id.includes('rockies')) {
+      // 12. BANFF & ROCKIES: Pine forest wind + High crystal bell notes
+      const { noise, filter } = createNoise('bandpass', 550, 3);
+      filter.connect(masterGain);
+      noise.start(now);
+      noise.stop(now + duration);
+
+      playBell(880, now + 0.4, 2.5, 0.26); // A5
+      playBell(1174, now + 1.5, 2.8, 0.22); // D6
+      playBell(1318, now + 2.9, 3.0, 0.20); // E6
+    } else if (id.includes('machu-picchu') || id.includes('peru') || id.includes('incas')) {
+      // 13. MACHU PICCHU: Andean pentatonic pan flute simulation + Mountain mist
+      const flute = ctx.createOscillator();
+      const fGain = ctx.createGain();
+      flute.type = 'sine';
+      flute.frequency.setValueAtTime(587.33, now + 0.3); // D5
+      flute.frequency.setValueAtTime(659.25, now + 1.2); // E5
+      flute.frequency.setValueAtTime(783.99, now + 2.1); // G5
+      flute.frequency.setValueAtTime(880.00, now + 3.2); // A5
+      flute.frequency.setValueAtTime(1046.5, now + 4.1); // C6
+
+      fGain.gain.setValueAtTime(0.001, now);
+      fGain.gain.linearRampToValueAtTime(0.22, now + 0.6);
+      fGain.gain.linearRampToValueAtTime(0.18, now + 3.5);
+      fGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      flute.connect(fGain);
+      fGain.connect(masterGain);
+      flute.start(now + 0.2);
+      flute.stop(now + duration);
+      sourcesToStop.push(flute);
+    } else if (id.includes('giza') || id.includes('egypt') || id.includes('pyramids')) {
+      // 14. GIZA PYRAMIDS: Desert wind sweep + Pharaonic scale harmonic bells
+      const { noise, filter } = createNoise('bandpass', 350, 4);
+      filter.frequency.linearRampToValueAtTime(600, now + 2.0);
+      filter.connect(masterGain);
+      noise.start(now);
+      noise.stop(now + duration);
+
+      playBell(293.66, now + 0.4, 3.5, 0.32); // D4
+      playBell(311.13, now + 1.4, 3.0, 0.28); // Eb4 (Hijaz flavor)
+      playBell(369.99, now + 2.6, 3.2, 0.26); // F#4
+      playBell(440.00, now + 3.8, 3.0, 0.24); // A4
+    } else if (id.includes('great-barrier-reef') || id.includes('cairns') || id.includes('coral')) {
+      // 15. GREAT BARRIER REEF: Tropical turquoise surf swell + gentle aquatic chimes
+      const { noise, filter } = createNoise('bandpass', 420, 2);
+      const waveGain = ctx.createGain();
+      waveGain.gain.setValueAtTime(0.05, now);
+      waveGain.gain.linearRampToValueAtTime(0.26, now + 1.8);
+      waveGain.gain.linearRampToValueAtTime(0.08, now + 4.8);
+      filter.connect(waveGain);
+      waveGain.connect(masterGain);
+      noise.start(now);
+      noise.stop(now + duration);
+
+      playBell(1046.5, now + 1.2, 2.0, 0.16); // C6
+      playBell(1318.5, now + 2.4, 2.2, 0.18); // E6
+      playBell(1567.9, now + 3.6, 2.5, 0.14); // G6
+    } else if (id.includes('antarctica') || id.includes('polar') || id.includes('glacier')) {
+      // 16. ANTARCTICA: Sub-zero katabatic polar wind howling + Glacial ice calf boom
+      const { noise, filter } = createNoise('bandpass', 280, 6);
+      filter.frequency.linearRampToValueAtTime(450, now + 1.5);
+      filter.frequency.linearRampToValueAtTime(190, now + 4.5);
+      filter.connect(masterGain);
+      noise.start(now);
+      noise.stop(now + duration);
+
+      // Deep glacial sub-bass calving boom
+      const iceBoom = ctx.createOscillator();
+      const iceGain = ctx.createGain();
+      iceBoom.type = 'triangle';
+      iceBoom.frequency.setValueAtTime(65, now + 0.6);
+      iceBoom.frequency.exponentialRampToValueAtTime(28, now + 2.2);
+
+      iceGain.gain.setValueAtTime(0.35, now + 0.6);
+      iceGain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
+
+      iceBoom.connect(iceGain);
+      iceGain.connect(masterGain);
+      iceBoom.start(now + 0.6);
+      iceBoom.stop(now + 2.6);
+      sourcesToStop.push(iceBoom);
+
+      playBell(1760, now + 2.8, 2.5, 0.15); // Ice crystal chime
     } else {
       // 8. GENERAL ADVENTURE: Dynamic mountain wind + Crystal explorer bell
       const { noise, filter } = createNoise('bandpass', 520, 2);
